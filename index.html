@@ -1,0 +1,830 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hodnocení školení</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── CSS Variables derived from reference image ── */
+    :root {
+      --color-primary:     #1b2060;
+      --color-accent:      #ED1943;
+      --color-accent-hover:#c4143a;
+      --color-positive:    #4caf50;
+      --color-neutral:     #9e9e9e;
+      --color-negative:    #e91e63;
+      --color-bg-form:     #edf2f7;
+      --color-bg-modal:    #ffffff;
+      --color-border:      #d0dae6;
+      --color-text:        #333333;
+      --color-text-muted:  #6b7a8d;
+      --color-star-active: #f5a623;
+      --radius-modal:      12px;
+      --radius-input:      8px;
+      --radius-btn:        0px;
+      --font-heading:      'azo-sans', 'Azo Sans', 'Nunito', sans-serif;
+      --font-body:         'azo-sans', 'Azo Sans', 'Nunito', sans-serif;
+      --transition:        0.22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(135deg, #e8edf5 0%, #f4f7fb 100%);
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Videolektor page mockup ── */
+    .vl-page { min-height: 100vh; background: #fff; display: flex; flex-direction: column; }
+
+    /* Nav */
+    .vl-nav {
+      display: flex; align-items: center; gap: 2rem;
+      padding: 0.75rem 2rem; border-bottom: 1px solid #e5e7eb;
+      background: #fff; position: sticky; top: 0; z-index: 10;
+    }
+    .vl-logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; flex-shrink: 0; }
+    .vl-logo-video { color: var(--color-accent); }
+    .vl-logo-lektor { color: var(--color-primary); }
+    .vl-nav-links { display: flex; gap: 1.5rem; }
+    .vl-nav-links a { text-decoration: none; color: var(--color-text); font-size: 0.9rem; font-weight: 500; }
+    .vl-nav-links a:hover { color: var(--color-primary); }
+    .vl-nav-search { margin-left: auto; position: relative; }
+    .vl-nav-search input {
+      border: 1px solid #d1d5db; border-radius: 4px;
+      padding: 0.4rem 2.2rem 0.4rem 0.75rem;
+      font-size: 0.85rem; width: 260px; color: var(--color-text);
+    }
+    .vl-nav-search input:focus { outline: none; border-color: var(--color-primary); }
+    .vl-search-icon { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--color-text-muted); pointer-events: none; }
+
+    /* Content */
+    .vl-content { display: flex; max-width: 900px; margin: 0 auto; padding: 1.5rem 2rem; width: 100%; }
+    .vl-video-area { flex: 1; min-width: 0; }
+
+    /* Video placeholder */
+    .vl-video-placeholder {
+      background: #1a1a2e; border-radius: 4px; overflow: hidden; margin-bottom: 1rem;
+      display: flex; flex-direction: column;
+    }
+    .vl-video-inner {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 3rem 2rem; text-align: center;
+    }
+    .vl-video-title { color: #fff; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .vl-video-sub { color: #aaa; font-size: 0.9rem; line-height: 1.6; }
+    .vl-video-bar {
+      background: #111; padding: 0.6rem 1rem; display: flex;
+      align-items: center; gap: 0.75rem;
+    }
+    .vl-play { color: #fff; font-size: 1rem; cursor: pointer; }
+    .vl-progress-line { flex: 1; height: 4px; background: #444; border-radius: 99px; }
+    .vl-progress-fill { width: 60%; height: 100%; background: var(--color-accent); border-radius: 99px; }
+    .vl-time { color: #aaa; font-size: 0.75rem; white-space: nowrap; }
+
+    /* Meta */
+    .vl-meta {
+      display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--color-text-muted);
+      padding: 0.6rem 0; border-bottom: 1px solid #f0f0f0; margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .vl-skoleni-title { font-size: 1rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0.75rem; }
+
+    /* Tabs */
+    .vl-tabs {
+      display: flex; gap: 0; border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .vl-tabs span {
+      padding: 0.5rem 0.85rem; font-size: 0.75rem; font-weight: 600;
+      color: var(--color-text-muted); cursor: pointer; letter-spacing: 0.04em;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .vl-tabs span:hover { color: var(--color-primary); }
+    .vl-tab-active { color: var(--color-primary) !important; border-bottom-color: var(--color-primary) !important; }
+
+    /* Hodnocení */
+    .vl-hodnoceni-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .vl-hodnoceni-header h3 { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: var(--color-primary); }
+    .vl-rating { font-size: 1rem; font-weight: 700; color: var(--color-primary); }
+    .vl-btn-wrap { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+    .vl-ohodnotit {
+      background: var(--color-accent); color: #fff; border: none;
+      padding: 0.7rem 1.5rem; font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+      font-family: var(--font-body); border-radius: 0;
+      transition: background var(--transition);
+    }
+    .vl-ohodnotit:hover { background: var(--color-accent-hover); }
+
+    /* Review */
+    .vl-review { display: flex; gap: 1rem; padding: 1rem; border: 1px solid #f0f0f0; border-radius: 6px; background: #fafafa; }
+    .vl-review-avatar {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--color-primary);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; flex-shrink: 0;
+    }
+    .vl-review-stars { color: var(--color-accent); font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .vl-review-date { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.4rem; }
+    .vl-review-body p { font-size: 0.88rem; color: var(--color-text); line-height: 1.55; }
+
+    /* Backdrop */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(20, 28, 70, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+    .modal-backdrop.is-open { opacity: 1; pointer-events: all; }
+
+    /* Modal container */
+    .modal {
+      background: var(--color-bg-modal);
+      border-radius: var(--radius-modal);
+      width: 100%; max-width: 620px;
+      max-height: 92vh; overflow-y: auto;
+      box-shadow: 0 32px 80px rgba(27,32,96,0.25), 0 4px 16px rgba(0,0,0,0.1);
+      transform: translateY(28px) scale(0.96);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.28s ease;
+      opacity: 0; outline: none;
+    }
+    .modal-backdrop.is-open .modal { transform: translateY(0) scale(1); opacity: 1; }
+
+    /* Scrollbar styling */
+    .modal::-webkit-scrollbar { width: 6px; }
+    .modal::-webkit-scrollbar-track { background: transparent; }
+    .modal::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
+
+    /* Header */
+    .modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 1.5rem 1.75rem 1.1rem; gap: 1rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .modal-header h2 {
+      font-family: var(--font-heading);
+      color: var(--color-primary);
+      font-size: 1.45rem; font-weight: 700; line-height: 1.25;
+    }
+    .modal-header p { margin-top: 0.3rem; color: var(--color-text-muted); font-size: 0.84rem; line-height: 1.5; }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--color-text-muted); font-size: 1.3rem; line-height: 1;
+      padding: 0.3rem; border-radius: 4px; flex-shrink: 0; margin-top: 2px;
+      transition: color var(--transition), background var(--transition);
+    }
+    .modal-close:hover { color: var(--color-primary); background: var(--color-bg-form); }
+    .modal-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+    /* Progress */
+    .modal-progress {
+      padding: 0.85rem 1.75rem; background: #F4F4F7;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .progress-meta {
+      display: flex; justify-content: space-between;
+      font-size: 0.76rem; font-weight: 600; color: var(--color-text-muted);
+      margin-bottom: 0.45rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .progress-meta .active { color: var(--color-primary); }
+    .progress-track { height: 4px; background: var(--color-border); border-radius: 99px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-radius: 99px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* Body */
+    .modal-body { padding: 1.5rem 1.75rem; }
+
+    /* Steps */
+    .step { display: none; }
+    .step.is-active { display: block; animation: stepIn 0.28s ease; }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(14px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Section */
+    .section-title {
+      font-family: var(--font-heading); color: var(--color-primary);
+      font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem;
+    }
+    .section-hint {
+      font-size: 0.82rem; color: #795520; margin-bottom: 1.25rem; line-height: 1.55;
+      background: #fff8e1; border-left: 3px solid var(--color-star-active);
+      padding: 0.5rem 0.75rem; border-radius: 0 var(--radius-input) var(--radius-input) 0;
+    }
+    .section-hint-neutral {
+      font-size: 0.82rem; color: var(--color-text-muted); margin-bottom: 1.25rem; line-height: 1.55;
+      background: var(--color-bg-form); border-left: 3px solid var(--color-neutral);
+      padding: 0.5rem 0.75rem; border-radius: 0 var(--radius-input) var(--radius-input) 0;
+    }
+
+    /* Rating header */
+    .rating-scale-header {
+      display: grid;
+      grid-template-columns: minmax(140px,1fr) repeat(5, 68px);
+      gap: 0 8px; align-items: start;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border); margin-bottom: 0.2rem;
+    }
+    .scale-val {
+      text-align: center; font-size: 0.72rem; color: var(--color-text-muted);
+      font-weight: 600; line-height: 1.3;
+    }
+    .scale-val .si { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+
+    /* Rating row */
+    .rating-row {
+      display: grid;
+      grid-template-columns: minmax(140px,1fr) repeat(5, 68px);
+      gap: 0 8px; align-items: center;
+      padding: 0.55rem 0; border-bottom: 1px solid #f0f4f8;
+      border-radius: 4px; transition: background var(--transition);
+    }
+    .rating-row .row-label {
+      font-size: 0.88rem; color: var(--color-text);
+      padding-right: 0.5rem; line-height: 1.35;
+    }
+
+    /* Custom radio */
+    .radio-wrap { display: flex; align-items: center; justify-content: center; }
+    .radio-wrap input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    /* Unselected: light blue fill + navy border */
+    .radio-ring {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid #232060; background: #e8edf8;
+      cursor: pointer; position: relative; flex-shrink: 0;
+      transition: background var(--transition), transform 0.14s;
+    }
+    /* Inner dot – hidden by default */
+    .radio-ring::after {
+      content: ''; position: absolute;
+      inset: 4px; border-radius: 50%;
+      background: transparent; transition: background var(--transition);
+    }
+    /* Focus */
+    .radio-wrap input[type="radio"]:focus-visible + .radio-ring {
+      outline: 2px solid var(--color-accent); outline-offset: 3px;
+    }
+    /* Selected: white background + navy border + navy center dot */
+    input:checked + .radio-ring {
+      background: #fff;
+      border-color: #232060;
+    }
+    input:checked + .radio-ring::after {
+      background: #232060;
+    }
+
+    /* Validation error */
+    .field-error {
+      font-size: 0.79rem; color: var(--color-accent); margin-top: 0.45rem;
+      display: none; align-items: center; gap: 0.3rem;
+    }
+    .field-error.is-visible { display: flex; }
+
+    /* Textarea */
+    .comment-section { margin-top: 1.5rem; }
+    .comment-section > label {
+      display: block; font-size: 0.92rem; font-weight: 400;
+      color: var(--color-text); margin-bottom: 0.6rem;
+    }
+    .comment-hint { display: none; }
+    textarea {
+      width: 100%; border: 1px solid #c8cfe0; border-radius: 4px;
+      padding: 0.85rem 1rem; font-family: var(--font-body); font-size: 0.88rem;
+      color: var(--color-text); resize: vertical; min-height: 110px; background: #fff;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    textarea::placeholder { color: var(--color-primary); font-style: italic; opacity: 0.75; }
+    textarea:focus { outline: none; border-color: #9aa4bc; box-shadow: none; }
+
+    /* Conditional comment */
+    .conditional-comment {
+      overflow: hidden; max-height: 0; opacity: 0;
+      transition: max-height 0.38s ease, opacity 0.3s ease, margin-top 0.3s ease;
+      margin-top: 0;
+    }
+    .conditional-comment.is-shown { max-height: 220px; opacity: 1; margin-top: 0.25rem; }
+
+    /* Footer */
+    .modal-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.75rem 1.5rem; gap: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+      border: none; border-radius: var(--radius-btn);
+      font-family: var(--font-body); font-size: 0.875rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+      padding: 0.7rem 1.45rem;
+      transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
+    }
+    .btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--color-accent); color: #fff;
+      
+    }
+    .btn-primary:hover { background: var(--color-accent-hover);  }
+    .btn-secondary {
+      background: transparent; color: var(--color-text-muted);
+      border: 1.5px solid var(--color-border);
+    }
+    .btn-secondary:hover { background: var(--color-bg-form); color: var(--color-primary); border-color: var(--color-primary); }
+
+    /* Step 2 footer layout */
+    #step2Buttons { display: none; width: 100%; justify-content: space-between; }
+    #step2Buttons.is-active { display: flex; }
+
+    /* Success */
+    .success-screen { display: none; text-align: center; padding: 2.5rem 1.75rem 2rem; animation: stepIn 0.4s ease; }
+    .success-screen.is-active { display: block; }
+    .success-icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+    .success-screen h3 { font-family: var(--font-heading); color: var(--color-primary); font-size: 1.35rem; margin-bottom: 0.6rem; }
+    .success-screen p { color: var(--color-text-muted); font-size: 0.88rem; max-width: 380px; margin: 0 auto 1.5rem; line-height: 1.65; }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      .modal-header, .modal-body, .modal-footer, .modal-progress { padding-left: 1rem; padding-right: 1rem; }
+      .rating-scale-header, .rating-row { grid-template-columns: minmax(90px,1fr) repeat(5, 52px); gap: 0 4px; }
+      .radio-ring { width: 16px; height: 16px; }
+      .scale-val .si { font-size: 1rem; }
+      .scale-val { font-size: 0.63rem; }
+    }
+
+
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- Videolektor page mockup -->
+<div class="vl-page">
+
+  <!-- Nav -->
+  <nav class="vl-nav">
+    <div class="vl-logo"><span class="vl-logo-video">VIDEO</span><span class="vl-logo-lektor">LEKTOR</span></div>
+    <div class="vl-nav-links">
+      <a href="#">Školení</a>
+      <a href="#">Dotazy</a>
+      <a href="#">Kalendář</a>
+    </div>
+    <div class="vl-nav-search">
+      <input type="text" placeholder="Vyhledávání v tématech školení" />
+      <span class="vl-search-icon">🔍</span>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="vl-content">
+
+    <!-- Video area -->
+    <div class="vl-video-area">
+      <div class="vl-video-placeholder">
+        <div class="vl-video-inner">
+          <p class="vl-video-title">Účetnictví pro začátečníky I</p>
+          <p class="vl-video-sub">Františka Smutková<br>5. 3. 2026</p>
+        </div>
+        <div class="vl-video-bar">
+          <span class="vl-play">▶</span>
+          <div class="vl-progress-line"><div class="vl-progress-fill"></div></div>
+          <span class="vl-time">2:32:00</span>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="vl-meta">
+        <span>📹 Videozáznam</span>
+        <span>📅 5.3.2026 (Čt), 10:00 – 14:00</span>
+        <span>👤 <strong>Františka Smutková</strong></span>
+      </div>
+
+      <h2 class="vl-skoleni-title">Účetnictví pro začátečníky I</h2>
+
+      <!-- Tabs -->
+      <div class="vl-tabs">
+        <span>PREZENTACE</span><span>PŘEPIS</span><span>SOUBORY</span>
+        <span>DOTAZY (4)</span><span>POZNÁMKY</span><span>POPIS</span>
+        <span>TEST</span>
+        <span class="vl-tab-active">HODNOCENÍ →</span>
+      </div>
+
+      <!-- Hodnocení section -->
+      <div class="vl-hodnoceni">
+        <div class="vl-hodnoceni-header">
+          <h3>Hodnocení</h3>
+          <span class="vl-rating">⭐ 4.8/5</span>
+        </div>
+        <div class="vl-btn-wrap">
+          <button class="vl-ohodnotit" id="openModal" aria-haspopup="dialog">OHODNOTIT ŠKOLENÍ</button>
+        </div>
+        <!-- Sample review -->
+        <div class="vl-review">
+          <div class="vl-review-avatar">S</div>
+          <div class="vl-review-body">
+            <div class="vl-review-stars">★★★★★</div>
+            <div class="vl-review-date">Přidáno: 05.03.2026, 14:14</div>
+            <p>Děkuji paní lektorce za vynikající opáčko základů účetnictví. Těším se na pokračování.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MODAL ═══════════════════════════ -->
+<div
+  class="modal-backdrop"
+  id="modalBackdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modalTitle"
+  aria-describedby="modalDesc"
+  tabindex="-1"
+>
+  <div class="modal" id="modal">
+
+    <!-- ── Header ── -->
+    <div class="modal-header">
+      <div>
+        <h2 id="modalTitle">Hodnocení školení</h2>
+        <p id="modalDesc">Vaše zpětná vazba nám pomáhá zkvalitňovat výuku.</p>
+      </div>
+      <button class="modal-close" id="closeModal" aria-label="Zavřít hodnocení">✕</button>
+    </div>
+
+    <!-- ── Progress ── -->
+    <div class="modal-progress" id="progressBar" aria-hidden="true">
+      <div class="progress-meta">
+        <span id="progressLabel"><span class="active">Krok 1 ze 2</span> — O lektorovi</span>
+        <span id="progressPct">50 %</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:50%"></div>
+      </div>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="modal-body">
+
+      <!-- ══ STEP 1: O lektorovi ══ -->
+      <div class="step is-active" id="step1" role="group" aria-labelledby="step1Title">
+
+        <div class="section-title" id="step1Title">O lektorovi</div>
+        <div class="section-hint">
+          ℹ️ Toto hodnocení bude zobrazeno na <strong>veřejném profilu lektora</strong> a pomůže ostatním účastníkům při výběru kurzu.
+        </div>
+
+        <!-- Scale header (aria-hidden – labels are on each input) -->
+        <div class="rating-scale-header" aria-hidden="true">
+          <div></div>
+          <div class="scale-val"><span class="si">😁</span>Určitě<br>pozitivně</div>
+          <div class="scale-val"><span class="si">🙂</span>Spíše<br>pozitivně</div>
+          <div class="scale-val"><span class="si">😐</span>Neutrálně</div>
+          <div class="scale-val"><span class="si">😕</span>Spíše<br>negativně</div>
+          <div class="scale-val"><span class="si">😠</span>Určitě<br>negativně</div>
+        </div>
+
+        <fieldset style="border:none;padding:0;" id="step1Fieldset">
+          <legend class="sr-only">Hodnocení lektora – 1 = Určitě pozitivně, 5 = Určitě negativně</legend>
+
+          <!-- Macro: each row = 5 radio inputs -->
+          <div class="rating-row">
+            <span class="row-label">Výkon lektora</span>
+            <div class="radio-wrap col-1"><input type="radio" name="vykkon" id="vy1" value="1" aria-label="Výkon lektora – Určitě pozitivně"><label for="vy1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="vykkon" id="vy2" value="2" aria-label="Výkon lektora – Spíše pozitivně"><label for="vy2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="vykkon" id="vy3" value="3" aria-label="Výkon lektora – Neutrálně"><label for="vy3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="vykkon" id="vy4" value="4" aria-label="Výkon lektora – Spíše negativně"><label for="vy4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="vykkon" id="vy5" value="5" aria-label="Výkon lektora – Určitě negativně"><label for="vy5" class="radio-ring"></label></div>
+          </div>
+
+          <div class="rating-row">
+            <span class="row-label">Srozumitelnost výkladu</span>
+            <div class="radio-wrap col-1"><input type="radio" name="srozumitelnost" id="sr1" value="1" aria-label="Srozumitelnost – Určitě pozitivně"><label for="sr1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="srozumitelnost" id="sr2" value="2" aria-label="Srozumitelnost – Spíše pozitivně"><label for="sr2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="srozumitelnost" id="sr3" value="3" aria-label="Srozumitelnost – Neutrálně"><label for="sr3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="srozumitelnost" id="sr4" value="4" aria-label="Srozumitelnost – Spíše negativně"><label for="sr4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="srozumitelnost" id="sr5" value="5" aria-label="Srozumitelnost – Určitě negativně"><label for="sr5" class="radio-ring"></label></div>
+          </div>
+
+          <div class="rating-row">
+            <span class="row-label">Přínos školení</span>
+            <div class="radio-wrap col-1"><input type="radio" name="prinos" id="pr1" value="1" aria-label="Přínos – Určitě pozitivně"><label for="pr1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="prinos" id="pr2" value="2" aria-label="Přínos – Spíše pozitivně"><label for="pr2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="prinos" id="pr3" value="3" aria-label="Přínos – Neutrálně"><label for="pr3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="prinos" id="pr4" value="4" aria-label="Přínos – Spíše negativně"><label for="pr4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="prinos" id="pr5" value="5" aria-label="Přínos – Určitě negativně"><label for="pr5" class="radio-ring"></label></div>
+          </div>
+
+          <div class="rating-row">
+            <span class="row-label">Podklady / materiály</span>
+            <div class="radio-wrap col-1"><input type="radio" name="podklady" id="po1" value="1" aria-label="Podklady – Určitě pozitivně"><label for="po1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="podklady" id="po2" value="2" aria-label="Podklady – Spíše pozitivně"><label for="po2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="podklady" id="po3" value="3" aria-label="Podklady – Neutrálně"><label for="po3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="podklady" id="po4" value="4" aria-label="Podklady – Spíše negativně"><label for="po4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="podklady" id="po5" value="5" aria-label="Podklady – Určitě negativně"><label for="po5" class="radio-ring"></label></div>
+          </div>
+
+          <div class="rating-row">
+            <span class="row-label">Kvalita odpovědí</span>
+            <div class="radio-wrap col-1"><input type="radio" name="reakce" id="re1" value="1" aria-label="Kvalita odpovědí – Určitě pozitivně"><label for="re1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="reakce" id="re2" value="2" aria-label="Kvalita odpovědí – Spíše pozitivně"><label for="re2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="reakce" id="re3" value="3" aria-label="Kvalita odpovědí – Neutrálně"><label for="re3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="reakce" id="re4" value="4" aria-label="Kvalita odpovědí – Spíše negativně"><label for="re4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="reakce" id="re5" value="5" aria-label="Kvalita odpovědí – Určitě negativně"><label for="re5" class="radio-ring"></label></div>
+          </div>
+        </fieldset>
+
+        <!-- Gentle inline validation -->
+        <div class="field-error" id="step1Error" role="alert" aria-live="polite">
+          <span aria-hidden="true">⚠️</span> Vyplňte prosím alespoň jedno hodnocení, než budete pokračovat.
+        </div>
+
+        <!-- Comment -->
+        <div class="comment-section">
+          <label for="commentLector">Další komentář</label>
+          <textarea id="commentLector" placeholder="Je něco dalšího, co byste chtěli k lektorovi doplnit?" rows="3"></textarea>
+        </div>
+
+      </div><!-- /step1 -->
+
+      <!-- ══ STEP 2: Technická část ══ -->
+      <div class="step" id="step2" role="group" aria-labelledby="step2Title">
+
+        <div class="section-title" id="step2Title">Technická část</div>
+        <div class="section-hint-neutral">
+          Tato část hodnocení je interní a slouží ke zlepšení technické a organizační stránky školení.
+        </div>
+
+        <!-- Neutral scale – no emojis, just numbers -->
+        <div class="rating-scale-header" aria-hidden="true">
+          <div></div>
+          <div class="scale-val"><span class="si">😁</span>Určitě<br>pozitivně</div>
+          <div class="scale-val"><span class="si">🙂</span>Spíše<br>pozitivně</div>
+          <div class="scale-val"><span class="si">😐</span>Neutrálně</div>
+          <div class="scale-val"><span class="si">😕</span>Spíše<br>negativně</div>
+          <div class="scale-val"><span class="si">😠</span>Určitě<br>negativně</div>
+        </div>
+
+        <fieldset style="border:none;padding:0;" id="step2Fieldset">
+          <legend class="sr-only">Technické hodnocení zvuku a obrazu – 1 = Určitě pozitivně, 5 = Určitě negativně</legend>
+
+          <div class="rating-row">
+            <span class="row-label">Kvalita zvuku</span>
+            <div class="radio-wrap col-1"><input type="radio" name="zvuk" id="zv1" value="1" aria-label="Zvuk – Určitě pozitivně"><label for="zv1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="zvuk" id="zv2" value="2" aria-label="Zvuk – Spíše pozitivně"><label for="zv2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="zvuk" id="zv3" value="3" aria-label="Zvuk – Neutrálně"><label for="zv3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="zvuk" id="zv4" value="4" aria-label="Zvuk – Spíše negativně"><label for="zv4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="zvuk" id="zv5" value="5" aria-label="Zvuk – Určitě negativně"><label for="zv5" class="radio-ring"></label></div>
+          </div>
+
+          <div class="rating-row">
+            <span class="row-label">Kvalita obrazu</span>
+            <div class="radio-wrap col-1"><input type="radio" name="obraz" id="ob1" value="1" aria-label="Obraz – Určitě pozitivně"><label for="ob1" class="radio-ring"></label></div>
+            <div class="radio-wrap col-2"><input type="radio" name="obraz" id="ob2" value="2" aria-label="Obraz – Spíše pozitivně"><label for="ob2" class="radio-ring"></label></div>
+            <div class="radio-wrap col-3"><input type="radio" name="obraz" id="ob3" value="3" aria-label="Obraz – Neutrálně"><label for="ob3" class="radio-ring"></label></div>
+            <div class="radio-wrap col-4"><input type="radio" name="obraz" id="ob4" value="4" aria-label="Obraz – Spíše negativně"><label for="ob4" class="radio-ring"></label></div>
+            <div class="radio-wrap col-5"><input type="radio" name="obraz" id="ob5" value="5" aria-label="Obraz – Určitě negativně"><label for="ob5" class="radio-ring"></label></div>
+          </div>
+        </fieldset>
+
+        <!-- Conditional comment: shown only when any tech rating >= 4 -->
+        <div class="conditional-comment" id="conditionalComment" aria-live="polite">
+          <div class="comment-section">
+            <label for="commentTech">Další komentář</label>
+            <textarea id="commentTech" placeholder="Narazili jste na technický nebo organizační problém? Popište ho prosím." rows="3"></textarea>
+          </div>
+        </div>
+
+      </div><!-- /step2 -->
+
+      <!-- ══ SUCCESS ══ -->
+      <div class="success-screen" id="successScreen" aria-live="polite">
+        <span class="success-icon" role="img" aria-label="Úspěšně odesláno">🎉</span>
+        <h3>Děkujeme za hodnocení!</h3>
+        <p>Vaše zpětná vazba byla odeslána. Pomáhá nám zlepšovat kvalitu školení a podporuje lektory v jejich rozvoji.</p>
+        <button class="btn btn-primary" id="closeSuccess">Zavřít</button>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <!-- ── Footer ── -->
+    <div class="modal-footer" id="modalFooter">
+      <!-- Step 1 buttons -->
+      <div id="step1Buttons" style="display:contents">
+        <button class="btn btn-secondary" id="closeStep1Btn">Zavřít hodnocení</button>
+        <button class="btn btn-primary" id="continueBtn">Pokračovat →</button>
+      </div>
+      <!-- Step 2 buttons -->
+      <div id="step2Buttons">
+        <button class="btn btn-secondary" id="backBtn">← Zpět</button>
+        <button class="btn btn-primary" id="submitBtn">Odeslat hodnocení ✓</button>
+      </div>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /backdrop -->
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── DOM ── */
+  const backdrop      = document.getElementById('modalBackdrop');
+  const modal         = document.getElementById('modal');
+  const openBtn       = document.getElementById('openModal');
+  const closeXBtn     = document.getElementById('closeModal');
+  const closeStep1Btn = document.getElementById('closeStep1Btn');
+  const continueBtn   = document.getElementById('continueBtn');
+  const backBtn       = document.getElementById('backBtn');
+  const submitBtn     = document.getElementById('submitBtn');
+  const closeSuccess  = document.getElementById('closeSuccess');
+
+  const step1El       = document.getElementById('step1');
+  const step2El       = document.getElementById('step2');
+  const successEl     = document.getElementById('successScreen');
+  const footerEl      = document.getElementById('modalFooter');
+  const step1Btns     = document.getElementById('step1Buttons');
+  const step2Btns     = document.getElementById('step2Buttons');
+  const progressBar   = document.getElementById('progressBar');
+  const progressFill  = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const progressPct   = document.getElementById('progressPct');
+  const step1Error    = document.getElementById('step1Error');
+  const condComment   = document.getElementById('conditionalComment');
+
+  /* ── State ── */
+  let isDirty = false;
+
+  /* ── Mark dirty on any interaction ── */
+  modal.addEventListener('change', () => isDirty = true);
+  modal.addEventListener('input',  () => isDirty = true);
+
+  /* ── Open ── */
+  function openModal() {
+    backdrop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => modal.focus(), 60);
+  }
+
+  /* ── Close ── */
+  function closeModal(force) {
+    if (!force && isDirty) {
+      if (!window.confirm('Máte nevyplněné hodnocení. Opravdu chcete zavřít?')) return;
+    }
+    backdrop.classList.remove('is-open');
+    document.body.style.overflow = '';
+    setTimeout(resetForm, 320);
+  }
+
+  /* ── Reset ── */
+  function resetForm() {
+    isDirty = false;
+    modal.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    modal.querySelectorAll('textarea').forEach(t => t.value = '');
+    step1Error.classList.remove('is-visible');
+    condComment.classList.remove('is-shown');
+    progressBar.style.display = '';
+    step1El.classList.add('is-active');
+    step2El.classList.remove('is-active');
+    successEl.classList.remove('is-active');
+    step1Btns.style.display = 'contents';
+    step2Btns.classList.remove('is-active');
+    footerEl.style.display = '';
+    setProgress(1);
+  }
+
+  /* ── Progress ── */
+  function setProgress(step) {
+    if (step === 1) {
+      progressFill.style.width = '50%';
+      progressLabel.innerHTML  = '<span class="active">Krok 1 ze 2</span> — O lektorovi';
+      progressPct.textContent  = '50 %';
+    } else {
+      progressFill.style.width = '100%';
+      progressLabel.innerHTML  = '<span class="active">Krok 2 ze 2</span> — Technická část';
+      progressPct.textContent  = '100 %';
+    }
+  }
+
+  /* ── Validate step 1 ── */
+  function step1Valid() {
+    const names = ['vykkon','srozumitelnost','prinos','podklady','reakce'];
+    return names.some(n => document.querySelector(`input[name="${n}"]:checked`));
+  }
+
+  /* ── Conditional comment logic ── */
+  function checkCondComment() {
+    const techNames = ['zvuk','obraz'];
+    const hasProblem = techNames.some(n => {
+      const el = document.querySelector(`input[name="${n}"]:checked`);
+      return el && +el.value >= 4;  // rating 4 or 5 (Spíše negativně / Určitě negativně) = show comment
+    });
+    condComment.classList.toggle('is-shown', hasProblem);
+  }
+
+  /* ── Events ── */
+  openBtn.addEventListener('click', openModal);
+  closeXBtn.addEventListener('click', () => closeModal(false));
+  closeStep1Btn.addEventListener('click', () => closeModal(false));
+  closeSuccess.addEventListener('click', () => closeModal(true));
+
+  continueBtn.addEventListener('click', () => {
+    if (!step1Valid()) {
+      step1Error.classList.add('is-visible');
+      step1Error.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    step1Error.classList.remove('is-visible');
+    // Transition to step 2
+    step1El.classList.remove('is-active');
+    step2El.classList.add('is-active');
+    step1Btns.style.display = 'none';
+    step2Btns.classList.add('is-active');
+    setProgress(2);
+    modal.scrollTop = 0;
+    setTimeout(() => {
+      const first = step2El.querySelector('input[type="radio"]');
+      if (first) first.focus();
+    }, 80);
+  });
+
+  backBtn.addEventListener('click', () => {
+    step2El.classList.remove('is-active');
+    step1El.classList.add('is-active');
+    step2Btns.classList.remove('is-active');
+    step1Btns.style.display = 'contents';
+    setProgress(1);
+    modal.scrollTop = 0;
+  });
+
+  submitBtn.addEventListener('click', () => {
+    const data = collectData();
+    console.log('Hodnocení odesláno:', data);
+    step2El.classList.remove('is-active');
+    footerEl.style.display = 'none';
+    progressBar.style.display = 'none';
+    successEl.classList.add('is-active');
+    isDirty = false;
+  });
+
+  /* ── Watch tech ratings for conditional comment ── */
+  document.getElementById('step2Fieldset').addEventListener('change', checkCondComment);
+
+  /* ── ESC + focus trap ── */
+  document.addEventListener('keydown', e => {
+    if (!backdrop.classList.contains('is-open')) return;
+    if (e.key === 'Escape') { closeModal(false); return; }
+    if (e.key !== 'Tab') return;
+    const focusables = Array.from(
+      modal.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled])')
+    ).filter(el => el.offsetParent !== null);  // only visible
+    if (!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+
+  /* ── Click outside ── */
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(false); });
+
+  /* ── Collect form data ── */
+  function collectData() {
+    const v = n => { const el = document.querySelector(`input[name="${n}"]:checked`); return el ? +el.value : null; };
+    return {
+      lektor: {
+        vykkon: v('vykkon'), srozumitelnost: v('srozumitelnost'),
+        prinos: v('prinos'), podklady: v('podklady'), reakce: v('reakce'),
+        komentar: document.getElementById('commentLector').value.trim()
+      },
+      technicka: {
+        zvuk: v('zvuk'), obraz: v('obraz'),
+        
+        komentar: document.getElementById('commentTech').value.trim()
+      }
+    };
+  }
+
+})();
+</script>
+</body>
+</html>
